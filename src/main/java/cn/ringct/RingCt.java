@@ -1,20 +1,21 @@
 package cn.ringct;
 
+import cn.ringct.Stepper.Step;
 import cn.wallet.Hash;
 import cn.wallet.Key;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 import org.bouncycastle.math.ec.ECPoint;
 
-import java.math.BigInteger;
+public class RingCt {
 
-public final class RingCt {
+  private final BigInteger n;
 
-  private final ECPoint g;
-
-  private final BigInteger l;
-
-  private final ECPoint p0;
-
-  private final ECPoint p2;
+  private final List<ECPoint> ring;
 
   private final Key myKey;
 
@@ -23,40 +24,72 @@ public final class RingCt {
   private final Stepper stepper;
 
   public RingCt(
-      ECPoint g,
-      BigInteger l,
-      ECPoint p0,
-      ECPoint p2,
+      BigInteger n,
+      List<ECPoint> ring,
       Key myKey,
-      Hash hash, Stepper stepper) {
-    this.g = g;
-    this.l = l;
-    this.p0 = p0;
-    this.p2 = p2;
+      Hash hash,
+      Stepper stepper) {
+    this.n = n;
+    this.ring = ring;
     this.myKey = myKey;
     this.hash = hash;
     this.stepper = stepper;
   }
 
   public SignedMessage sign(byte[] message) {
-    BigInteger s0 = new BigInteger("efe734dbde78c0b30a9170bf99bde2499d320f4c88e125fa71afbc000d5e120", 16);
-    BigInteger alpha = new BigInteger("25a7b8a6d38b9eaa2b7f378928538bc2393fc512ed106369fc2fce6d554a3b8", 16);
-    BigInteger s2 = new BigInteger("c292aeddc03e452697484b598870e59656ba6783a1c5d36f50623f39be8f077", 16);
-    ECPoint p1 = myKey.publicKey();
-    ECPoint I = hash.curveHash(p1).multiply(myKey.privateKey());
 
-    ECPoint L1 = g.multiply(alpha);
-    ECPoint R1 = hash.curveHash(p1).multiply(alpha);
-    BigInteger c2 = hash.fieldHash(message, L1, R1);
+    List<SaltedKey> saltedRing = ring.stream()
+        .map(p -> SaltedKey.create(p, random()))
+        .collect(Collectors.toList());
 
-    SigStep step1 = new SigStep(L1, R1, c2);
-    SigStep step2 = stepper.step(I, message, step1, p2, s2);
-    SigStep step0 = stepper.step(I, message, step2, p0, s0);
+    BigInteger alpha = random();
+    ECPoint P = myKey.publicKey();
+    BigInteger x = myKey.privateKey();
+    ECPoint I = hash.point(P).multiply(x);
 
-    BigInteger c1 = step0.cppi();
-    BigInteger s1 = alpha.subtract(c1.multiply(myKey.privateKey())).mod(l);
-    BigInteger c0 = step2.cppi();
+    Step prev = stepper.create(message, alpha, P);
+    Step firstStep = prev;
+    List<Step> steps = new ArrayList<>(ring.size());
 
-    return new SignedMessage(message, I, c0, s0, s1, s2, p0, p1, p2);
+    for (SaltedKey saltedKey : saltedRing) {
+      Step next = stepper.create(I, message, prev.c(), saltedKey);
+      steps.add(next);
+      prev = next;
+    }
+
+    BigInteger c = steps.get(ring.size() - 1).c();
+    BigInteger s0 = alpha.subtract(c.multiply(x)).mod(n);
+
+    Step updatedFirstStep = firstStep.updateSalt(s0);
+    List<Step> allSteps = concat(updatedFirstStep, steps);
+    allSteps = rotateRandom(allSteps);
+    return new SignedMessage(message, I, allSteps.get(allSteps.size() - 1).c(),
+        allSteps.stream().map(Step::key).collect(Collectors.toList()));
+  }
+
+  private static <E> List<E> rotateRandom(List<E> list) {
+    int j = ThreadLocalRandom.current().nextInt(list.size() + 1);
+    List<E> result = new ArrayList<>(list.size());
+    for (int i = 0; i < list.size(); i++) {
+      E element = list.get(Math.floorMod(i + j, list.size()));
+      result.add(element);
+    }
+    return result;
+  }
+
+  private static <E> List<E> concat(E head, List<E> tail) {
+    List<E> list = new ArrayList<>(tail.size() + 1);
+    list.add(head);
+    list.addAll(tail);
+    return list;
+  }
+
+  private BigInteger random() {
+    Random rnd = ThreadLocalRandom.current();
+    BigInteger r;
+    do {
+      r = new BigInteger(n.bitLength(), rnd);
+    } while (r.compareTo(n) >= 0);
+    return r;
   }
 }
