@@ -1,9 +1,10 @@
 package cn.wallet;
 
+import org.bouncycastle.math.ec.ECPoint;
+
 import java.math.BigInteger;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-import org.bouncycastle.math.ec.ECPoint;
 
 public class Sender {
 
@@ -25,7 +26,7 @@ public class Sender {
     BigInteger r = keygen();
 
     // compute the one-time key
-    ECPoint P = g.multiply(hash.fieldHash(A.multiply(r))).add(B);
+    ECPoint P = g.multiply(hash.exponentHash(A.multiply(r))).add(B);
     ECPoint R = g.multiply(r);
     return Transaction.create(P, R);
   }

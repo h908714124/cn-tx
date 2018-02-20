@@ -11,9 +11,8 @@ import org.bouncycastle.math.ec.ECPoint;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Optional;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -26,7 +25,6 @@ class SenderTest {
 
   private final Hash hash = new Hash(
       new KeccakDigest(),
-      CURVE.getCurve().getField().getCharacteristic(),
       CURVE.getN(),
       CURVE.getG());
 
@@ -67,8 +65,8 @@ class SenderTest {
       RingCt ringCt = new RingCt(
           CURVE.getG(),
           CURVE.getN(),
-          p0,
-          p2,
+          CURVE.getCurve().getField().getCharacteristic(),
+          List.of(p0, p2),
           key,
           hash,
           stepper);
@@ -77,17 +75,6 @@ class SenderTest {
       assertTrue(verifier.verify(signedMessage));
     }, () -> fail("no money"));
   }
-
-  private BigInteger keygen() {
-    Random rnd = ThreadLocalRandom.current();
-    BigInteger n = CURVE.getN();
-    BigInteger r;
-    do {
-      r = new BigInteger(n.bitLength(), rnd);
-    } while (r.compareTo(n) >= 0);
-    return r;
-  }
-
 
   private ECPoint point(String bytes) {
     return CURVE.getCurve().decodePoint(number(bytes).toByteArray());

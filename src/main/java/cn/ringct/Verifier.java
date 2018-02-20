@@ -37,6 +37,7 @@ public class Verifier {
     if (!c3.equals(c0)) {
       return false;
     }
+/*
     if (!c1.equals(hash.fieldHash(m, step0.Li(), step0.Ri()))) {
       return false;
     }
@@ -47,6 +48,7 @@ public class Verifier {
     if (!c0.equals(hash.fieldHash(m, step2.Li(), step2.Ri()))) {
       return false;
     }
+*/
     return true;
   }
 

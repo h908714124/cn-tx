@@ -1,8 +1,9 @@
 package cn.wallet;
 
+import org.bouncycastle.math.ec.ECPoint;
+
 import java.math.BigInteger;
 import java.util.Optional;
-import org.bouncycastle.math.ec.ECPoint;
 
 public class Receiver {
 
@@ -22,11 +23,11 @@ public class Receiver {
     BigInteger a = myKey.a();
     BigInteger b = myKey.b();
     ECPoint B = myKey.B();
-    ECPoint P_ = g.multiply(hash.fieldHash(R.multiply(a))).add(B);
+    ECPoint P_ = g.multiply(hash.exponentHash(R.multiply(a))).add(B);
     if (!P.equals(P_)) {
       return Optional.empty();
     }
-    BigInteger x = hash.fieldHash(R.multiply(a)).add(b);
+    BigInteger x = hash.exponentHash(R.multiply(a)).add(b);
     return Optional.of(new Key(g, x));
   }
 }
