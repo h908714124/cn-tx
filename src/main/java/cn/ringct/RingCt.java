@@ -49,6 +49,7 @@ public class RingCt {
     ECPoint I = hash.point(P).multiply(x);
 
     Step prev = stepper.create(message, alpha, P);
+    Step firstStep = prev;
     List<Step> steps = new ArrayList<>(ring.size());
 
     for (SaltedKey saltedKey : saltedRing) {
@@ -60,9 +61,21 @@ public class RingCt {
     BigInteger c = steps.get(ring.size() - 1).c();
     BigInteger s0 = alpha.subtract(c.multiply(x)).mod(n);
 
-    List<SaltedKey> extendedRing = concat(SaltedKey.create(P, s0), saltedRing);
 
-    return new SignedMessage(message, I, c, extendedRing);
+    List<SaltedKey> extendedRing = concat(SaltedKey.create(P, s0), saltedRing);
+    int j = ThreadLocalRandom.current().nextInt(extendedRing.size());
+    extendedRing = rotateRandom(extendedRing, j);
+    List<Step> allSteps = concat(firstStep, steps);
+    return new SignedMessage(message, I, allSteps.get(Math.floorMod(allSteps.size() + j - 1, allSteps.size())).c(), extendedRing);
+  }
+
+  private static <E> List<E> rotateRandom(List<E> list, int j) {
+    List<E> result = new ArrayList<>(list.size());
+    for (int i = 0; i < list.size(); i++) {
+      E element = list.get(Math.floorMod(i + j, list.size()));
+      result.add(element);
+    }
+    return result;
   }
 
   private static <E> List<E> concat(E head, List<E> tail) {
