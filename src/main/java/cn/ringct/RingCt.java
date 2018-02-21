@@ -14,8 +14,6 @@ import java.util.stream.Stream;
 
 public final class RingCt {
 
-  private final ECPoint g;
-
   private final BigInteger l;
 
   private final BigInteger q;
@@ -29,14 +27,12 @@ public final class RingCt {
   private final Stepper stepper;
 
   public RingCt(
-      ECPoint g,
       BigInteger l,
       BigInteger q,
       List<ECPoint> ring,
       Key myKey,
       Hash hash,
       Stepper stepper) {
-    this.g = g;
     this.l = l;
     this.q = q;
     this.ring = ring;
@@ -47,33 +43,32 @@ public final class RingCt {
 
   public SignedMessage sign(byte[] message) {
 
-    List<BigInteger> s = Stream.generate(this::random).limit(ring.size()).collect(Collectors.toList());
+    List<BigInteger> slist = Stream.generate(this::random)
+        .limit(ring.size())
+        .collect(Collectors.toList());
 
     BigInteger alpha = random();
-    ECPoint p1 = myKey.publicKey();
-    ECPoint I = hash.curveHash(p1).multiply(myKey.privateKey());
+    ECPoint p0 = myKey.publicKey();
+    ECPoint I = hash.curveHash(p0).multiply(myKey.privateKey());
 
-    ECPoint L_init = g.multiply(alpha);
-    ECPoint R_init = hash.curveHash(p1).multiply(alpha);
-    BigInteger c_init = hash.fieldHash(message, L_init, R_init);
+    SigStep prev = stepper.create(message, alpha, p0);
+    List<SigStep> steps = new ArrayList<>(slist.size());
 
-    SigStep prev = new SigStep(L_init, R_init, c_init);
-    List<SigStep> steps = new ArrayList<>(s.size());
     for (int i = 0; i < ring.size(); ++i) {
-      BigInteger si = s.get(i);
+      BigInteger si = slist.get(i);
       SigStep next = stepper.step(I, message, prev, ring.get(i), si);
       steps.add(next);
       prev = next;
     }
 
-    BigInteger c0 = steps.get(ring.size() - 1).cppi();
+    BigInteger c0 = steps.get(ring.size() - 1).c1();
     BigInteger s0 = alpha.subtract(c0.multiply(myKey.privateKey())).mod(l);
 
-    List<BigInteger> ss = concat(s0, s);
+    List<BigInteger> extendedSlist = concat(s0, slist);
 
-    List<ECPoint> extendedRing = concat(myKey.publicKey(), ring);
+    List<ECPoint> extendedRing = concat(p0, ring);
 
-    return new SignedMessage(message, I, c0, ss, extendedRing);
+    return new SignedMessage(message, I, c0, extendedSlist, extendedRing);
   }
 
   private static <E> List<E> concat(E head, List<E> tail) {

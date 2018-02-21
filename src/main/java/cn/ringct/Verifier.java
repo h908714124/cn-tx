@@ -38,12 +38,12 @@ public class Verifier {
       step = next;
     }
 
-    BigInteger last_c = steps.get(steps.size() - 1).cppi();
+    BigInteger last_c = steps.get(steps.size() - 1).c1();
     if (!last_c.equals(c0)) {
       return false;
     }
     for (SigStep s : steps) {
-      if (!s.cppi().equals(hash.fieldHash(m, s.Li(), s.Ri()))) {
+      if (!s.c1().equals(hash.fieldHash(m, s.L0(), s.R0()))) {
         return false;
       }
     }

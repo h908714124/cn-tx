@@ -21,13 +21,22 @@ public class Stepper {
       SigStep previous,
       ECPoint pi,
       BigInteger si) {
-    BigInteger ci = previous.cppi();
+    BigInteger ci = previous.c1();
     ECPoint Li = g.multiply(si).add(pi.multiply(ci));
     ECPoint Ri = hash.curveHash(pi).multiply(si).add(I.multiply(ci));
     return create(message, Li, Ri);
   }
 
   SigStep create(byte[] message, ECPoint Li, ECPoint Ri) {
-    return new SigStep(Li, Ri, hash.fieldHash(message, Li, Ri));
+    return SigStep.create(Li, Ri, hash.fieldHash(message, Li, Ri));
+  }
+
+  SigStep create(
+      byte[] message,
+      BigInteger alpha,
+      ECPoint p0) {
+    ECPoint L_init = g.multiply(alpha);
+    ECPoint R_init = hash.curveHash(p0).multiply(alpha);
+    return create(message, L_init, R_init);
   }
 }

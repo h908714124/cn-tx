@@ -6,25 +6,29 @@ import java.math.BigInteger;
 
 final class SigStep {
 
-  private final ECPoint Li;
-  private final ECPoint Ri;
-  private final BigInteger cppi;
+  private final ECPoint L0;
+  private final ECPoint R0;
+  private final BigInteger c1;
 
-  SigStep(ECPoint Li, ECPoint Ri, BigInteger cppi) {
-    this.Li = Li;
-    this.Ri = Ri;
-    this.cppi = cppi;
+  private SigStep(ECPoint L0, ECPoint R0, BigInteger c1) {
+    this.L0 = L0;
+    this.R0 = R0;
+    this.c1 = c1;
   }
 
-  ECPoint Li() {
-    return Li;
+  static SigStep create(ECPoint Li, ECPoint Ri, BigInteger cppi) {
+    return new SigStep(Li, Ri, cppi);
   }
 
-  ECPoint Ri() {
-    return Ri;
+  ECPoint L0() {
+    return L0;
   }
 
-  BigInteger cppi() {
-    return cppi;
+  ECPoint R0() {
+    return R0;
+  }
+
+  BigInteger c1() {
+    return c1;
   }
 }

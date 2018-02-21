@@ -40,7 +40,6 @@ class RingCtTest {
       point("42852e1dcc22765a75474aaa5614f2537d6dacdc96b406d2bc1b0bc846dd2ba3d7ddb053f77508282fde3c78c0ca339dafe6659a77e3c4fd878b68cf170ccce68");
 
   private final RingCt ringCt = new RingCt(
-      CURVE.getG(),
       CURVE.getN(),
       CURVE.getCurve().getField().getCharacteristic(),
       List.of(p0, p2),
