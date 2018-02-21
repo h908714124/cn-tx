@@ -41,10 +41,10 @@ class RingCtTest {
 
   private final RingCt ringCt = new RingCt(
       CURVE.getN(),
-      CURVE.getCurve().getField().getCharacteristic(),
       List.of(p0, p2),
       myKey,
-      hash, stepper);
+      hash,
+      stepper);
 
   @Test
   void signAndVerify() {

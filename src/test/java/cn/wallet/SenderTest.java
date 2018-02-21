@@ -64,7 +64,6 @@ class SenderTest {
     receiver.check(transaction).ifPresentOrElse(key -> {
       RingCt ringCt = new RingCt(
           CURVE.getN(),
-          CURVE.getCurve().getField().getCharacteristic(),
           List.of(p0, p2),
           key,
           hash,

@@ -6,7 +6,7 @@ import org.bouncycastle.math.ec.custom.djb.Curve25519FieldElement;
 
 import java.math.BigInteger;
 
-public final class Key {
+public class Key {
 
   private final ECPoint g;
 

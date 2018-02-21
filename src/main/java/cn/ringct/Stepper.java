@@ -19,24 +19,29 @@ public class Stepper {
       ECPoint I,
       byte[] message,
       SigStep previous,
-      ECPoint pi,
-      BigInteger si) {
-    BigInteger ci = previous.c1();
-    ECPoint Li = g.multiply(si).add(pi.multiply(ci));
-    ECPoint Ri = hash.curveHash(pi).multiply(si).add(I.multiply(ci));
-    return create(message, Li, Ri);
+      SaltedKey saltedKey) {
+    BigInteger s0 = saltedKey.s();
+    ECPoint p0 = saltedKey.p();
+    BigInteger c1 = previous.c1();
+    ECPoint L1 = g.multiply(s0).add(p0.multiply(c1));
+    ECPoint R1 = hash.curveHash(p0).multiply(s0).add(I.multiply(c1));
+    return create(message, L1, R1);
   }
 
-  SigStep create(byte[] message, ECPoint Li, ECPoint Ri) {
-    return SigStep.create(Li, Ri, hash.fieldHash(message, Li, Ri));
+  SigStep create(
+      byte[] message,
+      ECPoint L0,
+      ECPoint R0) {
+    BigInteger c1 = hash.fieldHash(message, L0, R0);
+    return SigStep.create(L0, R0, c1);
   }
 
   SigStep create(
       byte[] message,
       BigInteger alpha,
       ECPoint p0) {
-    ECPoint L_init = g.multiply(alpha);
-    ECPoint R_init = hash.curveHash(p0).multiply(alpha);
-    return create(message, L_init, R_init);
+    ECPoint L0 = g.multiply(alpha);
+    ECPoint R0 = hash.curveHash(p0).multiply(alpha);
+    return create(message, L0, R0);
   }
 }

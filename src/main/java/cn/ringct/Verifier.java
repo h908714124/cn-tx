@@ -28,12 +28,12 @@ public class Verifier {
     ECPoint L0 = g.multiply(s0).add(p0.multiply(c0));
     ECPoint R0 = hash.curveHash(p0).multiply(s0).add(I.multiply(c0));
     SigStep step = stepper.create(signedMessage.message(), L0, R0);
-    List<ECPoint> ring = signedMessage.ring();
+    List<SaltedKey> ring = signedMessage.ring();
     List<SigStep> steps = new ArrayList<>(ring.size());
     steps.add(step);
     for (int i = 1; i < ring.size(); i++) {
-      ECPoint point = ring.get(i);
-      SigStep next = stepper.step(I, m, step, point, signedMessage.s(i));
+      SaltedKey saltedKey = ring.get(i);
+      SigStep next = stepper.step(I, m, step, saltedKey);
       steps.add(next);
       step = next;
     }

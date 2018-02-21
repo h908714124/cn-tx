@@ -5,26 +5,23 @@ import org.bouncycastle.math.ec.ECPoint;
 import java.math.BigInteger;
 import java.util.List;
 
-public final class SignedMessage {
+public class SignedMessage {
 
   private final byte[] message;
   private final ECPoint I;
 
   private final BigInteger c0;
 
-  private final List<BigInteger> s;
-  private final List<ECPoint> ring;
+  private final List<SaltedKey> ring;
 
   public SignedMessage(
       byte[] message,
       ECPoint I,
       BigInteger c0,
-      List<BigInteger> s,
-      List<ECPoint> ring) {
+      List<SaltedKey> ring) {
     this.message = message;
     this.I = I;
     this.c0 = c0;
-    this.s = s;
     this.ring = ring;
   }
 
@@ -36,20 +33,16 @@ public final class SignedMessage {
     return c0;
   }
 
-  public List<BigInteger> s() {
-    return s;
-  }
-
   public BigInteger s(int i) {
-    return s.get(i);
+    return ring.get(i).s();
   }
 
-  public List<ECPoint> ring() {
+  public List<SaltedKey> ring() {
     return ring;
   }
 
   public ECPoint p(int i) {
-    return ring.get(i);
+    return ring.get(i).p();
   }
 
   public byte[] message() {

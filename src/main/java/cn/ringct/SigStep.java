@@ -4,7 +4,7 @@ import org.bouncycastle.math.ec.ECPoint;
 
 import java.math.BigInteger;
 
-final class SigStep {
+class SigStep {
 
   private final ECPoint L0;
   private final ECPoint R0;
