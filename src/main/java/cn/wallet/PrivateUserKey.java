@@ -17,9 +17,9 @@ public class PrivateUserKey {
     this.publicKey = publicKey;
   }
 
-  static PrivateUserKey create(ECPoint g, String xa, String xb) {
-    Key a = new Key(g, new BigInteger(xa, 16));
-    Key b = new Key(g, new BigInteger(xb, 16));
+  static PrivateUserKey create(ECPoint G, String xa, String xb) {
+    Key a = new Key(G, new BigInteger(xa, 16));
+    Key b = new Key(G, new BigInteger(xb, 16));
     PublicUserKey publicKey = new PublicUserKey(a.publicKey(), b.publicKey());
     return new PrivateUserKey(a, b, publicKey);
   }

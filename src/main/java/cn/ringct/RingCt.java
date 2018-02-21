@@ -1,5 +1,6 @@
 package cn.ringct;
 
+import cn.ringct.Stepper.Step;
 import cn.wallet.Hash;
 import cn.wallet.Key;
 import org.bouncycastle.math.ec.ECPoint;
@@ -43,24 +44,25 @@ public class RingCt {
         .collect(Collectors.toList());
 
     BigInteger alpha = random();
-    ECPoint p0 = myKey.publicKey();
-    ECPoint I = hash.point(p0).multiply(myKey.privateKey());
+    ECPoint P = myKey.publicKey();
+    BigInteger x = myKey.privateKey();
+    ECPoint I = hash.point(P).multiply(x);
 
-    SigStep prev = stepper.create(message, alpha, p0);
-    List<SigStep> steps = new ArrayList<>(saltedRing.size());
+    Step prev = stepper.create(message, alpha, P);
+    List<Step> steps = new ArrayList<>(ring.size());
 
     for (SaltedKey saltedKey : saltedRing) {
-      SigStep next = stepper.step(I, message, prev, saltedKey);
+      Step next = stepper.create(I, message, prev.c(), saltedKey);
       steps.add(next);
       prev = next;
     }
 
-    BigInteger c0 = steps.get(ring.size() - 1).c1();
-    BigInteger s0 = alpha.subtract(c0.multiply(myKey.privateKey())).mod(n);
+    BigInteger c = steps.get(ring.size() - 1).c();
+    BigInteger s0 = alpha.subtract(c.multiply(x)).mod(n);
 
-    List<SaltedKey> extendedRing = concat(SaltedKey.create(p0, s0), saltedRing);
+    List<SaltedKey> extendedRing = concat(SaltedKey.create(P, s0), saltedRing);
 
-    return new SignedMessage(message, I, c0, extendedRing);
+    return new SignedMessage(message, I, c, extendedRing);
   }
 
   private static <E> List<E> concat(E head, List<E> tail) {

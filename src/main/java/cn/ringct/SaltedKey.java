@@ -6,20 +6,21 @@ import java.math.BigInteger;
 
 public class SaltedKey {
 
-  private final ECPoint p;
+  private final ECPoint P;
+
   private final BigInteger s;
 
-  private SaltedKey(ECPoint p, BigInteger s) {
-    this.p = p;
+  private SaltedKey(ECPoint P, BigInteger s) {
+    this.P = P;
     this.s = s;
   }
 
-  static SaltedKey create(ECPoint p, BigInteger s) {
-    return new SaltedKey(p, s);
+  static SaltedKey create(ECPoint P, BigInteger s) {
+    return new SaltedKey(P, s);
   }
 
-  public ECPoint p() {
-    return p;
+  public ECPoint P() {
+    return P;
   }
 
   public BigInteger s() {

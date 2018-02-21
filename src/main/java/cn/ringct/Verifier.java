@@ -1,5 +1,6 @@
 package cn.ringct;
 
+import cn.ringct.Stepper.Step;
 import cn.wallet.Hash;
 import org.bouncycastle.math.ec.ECPoint;
 
@@ -9,12 +10,11 @@ import java.util.List;
 
 public class Verifier {
 
-  private final ECPoint g;
   private final Hash hash;
+
   private final Stepper stepper;
 
-  public Verifier(ECPoint g, Hash hash, Stepper stepper) {
-    this.g = g;
+  public Verifier(Hash hash, Stepper stepper) {
     this.hash = hash;
     this.stepper = stepper;
   }
@@ -22,28 +22,25 @@ public class Verifier {
   public boolean verify(SignedMessage signedMessage) {
     byte[] m = signedMessage.message();
     ECPoint I = signedMessage.keyImage();
-    ECPoint p0 = signedMessage.p(0);
-    BigInteger s0 = signedMessage.s(0);
-    BigInteger c0 = signedMessage.c0();
-    ECPoint L0 = g.multiply(s0).add(p0.multiply(c0));
-    ECPoint R0 = hash.point(p0).multiply(s0).add(I.multiply(c0));
-    SigStep step = stepper.create(signedMessage.message(), L0, R0);
+    BigInteger c0 = signedMessage.c();
+
+    Step step = stepper.create(I, signedMessage.message(), c0, signedMessage.ring().get(0));
     List<SaltedKey> ring = signedMessage.ring();
-    List<SigStep> steps = new ArrayList<>(ring.size());
+    List<Step> steps = new ArrayList<>(ring.size());
     steps.add(step);
     for (int i = 1; i < ring.size(); i++) {
       SaltedKey saltedKey = ring.get(i);
-      SigStep next = stepper.step(I, m, step, saltedKey);
+      Step next = stepper.create(I, m, step.c(), saltedKey);
       steps.add(next);
       step = next;
     }
 
-    BigInteger last_c = steps.get(steps.size() - 1).c1();
+    BigInteger last_c = steps.get(steps.size() - 1).c();
     if (!last_c.equals(c0)) {
       return false;
     }
-    for (SigStep s : steps) {
-      if (!s.c1().equals(hash.scalar(m, s.L0(), s.R0()))) {
+    for (Step s : steps) {
+      if (!s.c().equals(hash.scalar(m, s.L(), s.R()))) {
         return false;
       }
     }

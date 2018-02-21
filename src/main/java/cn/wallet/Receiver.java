@@ -9,12 +9,12 @@ public class Receiver {
 
   private final PrivateUserKey myKey;
   private final Hash hash;
-  private final ECPoint g;
+  private final ECPoint G;
 
-  Receiver(ECPoint g, PrivateUserKey myKey, Hash hash) {
+  Receiver(ECPoint G, PrivateUserKey myKey, Hash hash) {
     this.myKey = myKey;
     this.hash = hash;
-    this.g = g;
+    this.G = G;
   }
 
   public Optional<Key> check(Transaction transaction) {
@@ -23,11 +23,11 @@ public class Receiver {
     BigInteger a = myKey.a();
     BigInteger b = myKey.b();
     ECPoint B = myKey.B();
-    ECPoint P_ = g.multiply(hash.scalar(R.multiply(a))).add(B);
+    ECPoint P_ = G.multiply(hash.scalar(R.multiply(a))).add(B);
     if (!P.equals(P_)) {
       return Optional.empty();
     }
     BigInteger x = hash.scalar(R.multiply(a)).add(b);
-    return Optional.of(new Key(g, x));
+    return Optional.of(new Key(G, x));
   }
 }

@@ -7,41 +7,66 @@ import java.math.BigInteger;
 
 public class Stepper {
 
-  private final ECPoint g;
+  private final ECPoint G;
+
   private final Hash hash;
 
-  public Stepper(ECPoint g, Hash hash) {
-    this.g = g;
+  public Stepper(ECPoint G, Hash hash) {
+    this.G = G;
     this.hash = hash;
   }
 
-  SigStep step(
+  Step create(
       ECPoint I,
       byte[] message,
-      SigStep previous,
+      BigInteger c,
       SaltedKey saltedKey) {
-    BigInteger s0 = saltedKey.s();
-    ECPoint p0 = saltedKey.p();
-    BigInteger c1 = previous.c1();
-    ECPoint L1 = g.multiply(s0).add(p0.multiply(c1));
-    ECPoint R1 = hash.point(p0).multiply(s0).add(I.multiply(c1));
-    return create(message, L1, R1);
+    BigInteger s = saltedKey.s();
+    ECPoint P = saltedKey.P();
+    ECPoint L = G.multiply(s).add(P.multiply(c));
+    ECPoint R = hash.point(P).multiply(s).add(I.multiply(c));
+    return create(message, L, R);
   }
 
-  SigStep create(
+  Step create(
       byte[] message,
-      ECPoint L0,
-      ECPoint R0) {
-    BigInteger c1 = hash.scalar(message, L0, R0);
-    return new SigStep(L0, R0, c1);
+      BigInteger s,
+      ECPoint P) {
+    ECPoint L = G.multiply(s);
+    ECPoint R = hash.point(P).multiply(s);
+    return create(message, L, R);
   }
 
-  SigStep create(
+  private Step create(
       byte[] message,
-      BigInteger alpha,
-      ECPoint p0) {
-    ECPoint L0 = g.multiply(alpha);
-    ECPoint R0 = hash.point(p0).multiply(alpha);
-    return create(message, L0, R0);
+      ECPoint L,
+      ECPoint R) {
+    BigInteger c = hash.scalar(message, L, R);
+    return new Step(L, R, c);
+  }
+
+  static class Step {
+
+    private final ECPoint L;
+    private final ECPoint R;
+    private final BigInteger c;
+
+    Step(ECPoint L, ECPoint R, BigInteger c) {
+      this.L = L;
+      this.R = R;
+      this.c = c;
+    }
+
+    ECPoint L() {
+      return L;
+    }
+
+    ECPoint R() {
+      return R;
+    }
+
+    BigInteger c() {
+      return c;
+    }
   }
 }

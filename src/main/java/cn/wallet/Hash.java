@@ -11,26 +11,24 @@ public class Hash {
 
   private final BigInteger n;
 
-  private final ECPoint g;
+  private final ECPoint G;
 
-  public Hash(KeccakDigest keccak, BigInteger n, ECPoint g) {
+  public Hash(KeccakDigest keccak, BigInteger n, ECPoint G) {
     this.keccak = keccak;
     this.n = n;
-    this.g = g;
+    this.G = G;
   }
 
-  public BigInteger scalar(ECPoint point) {
-    return h(point.getEncoded(false));
+  public BigInteger scalar(ECPoint A) {
+    return h(A.getEncoded(false));
   }
 
-  public BigInteger scalar(byte[] message, ECPoint a, ECPoint b) {
-    byte[] ba = a.getEncoded(false);
-    byte[] bb = b.getEncoded(false);
-    return h(message, ba, bb);
+  public BigInteger scalar(byte[] message, ECPoint A, ECPoint B) {
+    return h(message, A.getEncoded(false), B.getEncoded(false));
   }
 
-  public ECPoint point(ECPoint point) {
-    return g.multiply(h(point.getEncoded(false)));
+  public ECPoint point(ECPoint A) {
+    return G.multiply(h(A.getEncoded(false)));
   }
 
   private BigInteger h(byte[]... data) {

@@ -8,17 +8,17 @@ import java.math.BigInteger;
 
 public class Key {
 
-  private final ECPoint g;
+  private final ECPoint G;
 
   private final ECFieldElement x;
 
-  public Key(ECPoint g, BigInteger x) {
-    this.g = g;
+  public Key(ECPoint G, BigInteger x) {
+    this.G = G;
     this.x = new Curve25519FieldElement(x);
   }
 
   public ECPoint publicKey() {
-    return g.multiply(privateKey());
+    return G.multiply(privateKey());
   }
 
   public BigInteger privateKey() {

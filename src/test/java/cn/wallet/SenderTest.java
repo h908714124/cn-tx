@@ -30,17 +30,17 @@ class SenderTest {
 
   private final Stepper stepper = new Stepper(CURVE.getG(), hash);
 
-  private final Verifier verifier = new Verifier(CURVE.getG(), hash, stepper);
+  private final Verifier verifier = new Verifier(hash, stepper);
 
   private final Sender sender = new Sender(
       CURVE.getN(),
       CURVE.getG(),
       hash);
 
-  private final ECPoint p0 =
+  private final ECPoint P0 =
       point("4346f4b8d3e395a5a0c81c2241dd3c1df68233eacd9ad7b2ceaea72d81d7b4769216e49dc4140a82ff7559400c2ee1a35022f0161ea7032c4eb6c9d3a12e083cf");
 
-  private final ECPoint p2 =
+  private final ECPoint P1 =
       point("42852e1dcc22765a75474aaa5614f2537d6dacdc96b406d2bc1b0bc846dd2ba3d7ddb053f77508282fde3c78c0ca339dafe6659a77e3c4fd878b68cf170ccce68");
 
   private final PrivateUserKey x = PrivateUserKey.create(CURVE.getG(),
@@ -64,7 +64,7 @@ class SenderTest {
     receiver.check(transaction).ifPresentOrElse(key -> {
       RingCt ringCt = new RingCt(
           CURVE.getN(),
-          List.of(p0, p2),
+          List.of(P0, P1),
           key,
           hash,
           stepper);
