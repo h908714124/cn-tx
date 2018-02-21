@@ -44,7 +44,7 @@ public class RingCt {
 
     BigInteger alpha = random();
     ECPoint p0 = myKey.publicKey();
-    ECPoint I = hash.curveHash(p0).multiply(myKey.privateKey());
+    ECPoint I = hash.point(p0).multiply(myKey.privateKey());
 
     SigStep prev = stepper.create(message, alpha, p0);
     List<SigStep> steps = new ArrayList<>(saltedRing.size());

@@ -26,7 +26,7 @@ public class Sender {
     BigInteger r = keygen();
 
     // compute the one-time key
-    ECPoint P = g.multiply(hash.exponentHash(A.multiply(r))).add(B);
+    ECPoint P = g.multiply(hash.scalar(A.multiply(r))).add(B);
     ECPoint R = g.multiply(r);
     return Transaction.create(P, R);
   }

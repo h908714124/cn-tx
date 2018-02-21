@@ -10,14 +10,10 @@ class SigStep {
   private final ECPoint R0;
   private final BigInteger c1;
 
-  private SigStep(ECPoint L0, ECPoint R0, BigInteger c1) {
+  SigStep(ECPoint L0, ECPoint R0, BigInteger c1) {
     this.L0 = L0;
     this.R0 = R0;
     this.c1 = c1;
-  }
-
-  static SigStep create(ECPoint Li, ECPoint Ri, BigInteger cppi) {
-    return new SigStep(Li, Ri, cppi);
   }
 
   ECPoint L0() {

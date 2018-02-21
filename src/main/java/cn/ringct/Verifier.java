@@ -26,7 +26,7 @@ public class Verifier {
     BigInteger s0 = signedMessage.s(0);
     BigInteger c0 = signedMessage.c0();
     ECPoint L0 = g.multiply(s0).add(p0.multiply(c0));
-    ECPoint R0 = hash.curveHash(p0).multiply(s0).add(I.multiply(c0));
+    ECPoint R0 = hash.point(p0).multiply(s0).add(I.multiply(c0));
     SigStep step = stepper.create(signedMessage.message(), L0, R0);
     List<SaltedKey> ring = signedMessage.ring();
     List<SigStep> steps = new ArrayList<>(ring.size());
@@ -43,7 +43,7 @@ public class Verifier {
       return false;
     }
     for (SigStep s : steps) {
-      if (!s.c1().equals(hash.fieldHash(m, s.L0(), s.R0()))) {
+      if (!s.c1().equals(hash.scalar(m, s.L0(), s.R0()))) {
         return false;
       }
     }

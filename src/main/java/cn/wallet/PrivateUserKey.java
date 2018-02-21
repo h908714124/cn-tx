@@ -1,7 +1,8 @@
 package cn.wallet;
 
-import java.math.BigInteger;
 import org.bouncycastle.math.ec.ECPoint;
+
+import java.math.BigInteger;
 
 public class PrivateUserKey {
 
