@@ -4,6 +4,8 @@ import cn.wallet.Hash;
 import org.bouncycastle.math.ec.ECPoint;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Verifier {
 
@@ -20,21 +22,25 @@ public class Verifier {
   public boolean verify(SignedMessage signedMessage) {
     byte[] m = signedMessage.message();
     ECPoint I = signedMessage.keyImage();
-    ECPoint p0 = signedMessage.p0();
-    BigInteger s0 = signedMessage.s0();
+    ECPoint p0 = signedMessage.p(0);
+    BigInteger s0 = signedMessage.s(0);
     BigInteger c0 = signedMessage.c0();
     ECPoint L0 = g.multiply(s0).add(p0.multiply(c0));
     ECPoint R0 = hash.curveHash(p0).multiply(s0).add(I.multiply(c0));
     BigInteger c1 = hash.fieldHash(m, L0, R0);
-    ECPoint p1 = signedMessage.p1();
-    ECPoint p2 = signedMessage.p2();
-    BigInteger s1 = signedMessage.s1();
-    BigInteger s2 = signedMessage.s2();
-    SigStep step0 = new SigStep(L0, R0, c1);
-    SigStep step1 = stepper.step(I, m, step0, p1, s1);
-    SigStep step2 = stepper.step(I, m, step1, p2, s2);
-    BigInteger c3 = step2.cppi();
-    if (!c3.equals(c0)) {
+    SigStep step = new SigStep(L0, R0, c1);
+    List<ECPoint> ring = signedMessage.ring();
+    List<SigStep> steps = new ArrayList<>(ring.size());
+    steps.add(step);
+    for (int i = 1; i < ring.size(); i++) {
+      ECPoint point = ring.get(i);
+      SigStep next = stepper.step(I, m, step, point, signedMessage.s(i));
+      steps.add(next);
+      step = next;
+    }
+
+    BigInteger last_c = steps.get(steps.size() - 1).cppi();
+    if (!last_c.equals(c0)) {
       return false;
     }
 /*

@@ -40,8 +40,16 @@ public final class SignedMessage {
     return s;
   }
 
+  public BigInteger s(int i) {
+    return s.get(i);
+  }
+
   public List<ECPoint> ring() {
     return ring;
+  }
+
+  public ECPoint p(int i) {
+    return ring.get(i);
   }
 
   public byte[] message() {
