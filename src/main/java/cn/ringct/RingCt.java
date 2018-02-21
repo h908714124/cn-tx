@@ -66,24 +66,21 @@ public final class RingCt {
       prev = next;
     }
 
-    ArrayList<BigInteger> c = new ArrayList<>();
-    for (int i = 0; i < steps.size(); i++) {
-      SigStep step = steps.get(Math.floorMod(i - 1, ring.size()));
-      c.add(step.cppi());
-    }
-
     BigInteger c0 = steps.get(ring.size() - 1).cppi();
     BigInteger s0 = alpha.subtract(c0.multiply(myKey.privateKey())).mod(l);
 
-    List<BigInteger> ss = new ArrayList<>(s.size() + 1);
-    ss.add(s0);
-    ss.addAll(s);
+    List<BigInteger> ss = concat(s0, s);
 
-    List<ECPoint> rring = new ArrayList<>(ring.size() + 1);
-    rring.add(myKey.publicKey());
-    rring.addAll(ring);
+    List<ECPoint> extendedRing = concat(myKey.publicKey(), ring);
 
-    return new SignedMessage(message, I, c0, ss, rring);
+    return new SignedMessage(message, I, c0, ss, extendedRing);
+  }
+
+  private static <E> List<E> concat(E head, List<E> tail) {
+    List<E> list = new ArrayList<>(tail.size() + 1);
+    list.add(head);
+    list.addAll(tail);
+    return list;
   }
 
   private BigInteger random() {

@@ -24,7 +24,10 @@ public class Stepper {
     BigInteger ci = previous.cppi();
     ECPoint Li = g.multiply(si).add(pi.multiply(ci));
     ECPoint Ri = hash.curveHash(pi).multiply(si).add(I.multiply(ci));
-    BigInteger cppi = hash.fieldHash(message, Li, Ri);
-    return new SigStep(Li, Ri, cppi);
+    return create(message, Li, Ri);
+  }
+
+  SigStep create(byte[] message, ECPoint Li, ECPoint Ri) {
+    return new SigStep(Li, Ri, hash.fieldHash(message, Li, Ri));
   }
 }
