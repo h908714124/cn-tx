@@ -60,15 +60,15 @@ public class RingCt {
     BigInteger c = steps.get(ring.size() - 1).c();
     BigInteger s0 = alpha.subtract(c.multiply(x)).mod(n);
 
-
-    int j = ThreadLocalRandom.current().nextInt(ring.size() + 1);
-    List<Step> allSteps = concat(firstStep.updateKey(SaltedKey.create(P, s0)), steps);
-    allSteps = rotateRandom(allSteps, j);
-    List<SaltedKey> extendedRing = allSteps.stream().map(Step::key).collect(Collectors.toList());
-    return new SignedMessage(message, I, allSteps.get(allSteps.size() - 1).c(), extendedRing);
+    Step updatedFirstStep = firstStep.updateSalt(s0);
+    List<Step> allSteps = concat(updatedFirstStep, steps);
+    allSteps = rotateRandom(allSteps);
+    return new SignedMessage(message, I, allSteps.get(allSteps.size() - 1).c(),
+        allSteps.stream().map(Step::key).collect(Collectors.toList()));
   }
 
-  private static <E> List<E> rotateRandom(List<E> list, int j) {
+  private static <E> List<E> rotateRandom(List<E> list) {
+    int j = ThreadLocalRandom.current().nextInt(list.size() + 1);
     List<E> result = new ArrayList<>(list.size());
     for (int i = 0; i < list.size(); i++) {
       E element = list.get(Math.floorMod(i + j, list.size()));

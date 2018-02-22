@@ -72,12 +72,12 @@ public class Stepper {
       return c;
     }
 
-    SaltedKey key() {
+    public SaltedKey key() {
       return saltedKey;
     }
 
-    public Step updateKey(SaltedKey key) {
-      return new Step(L, R, c, key);
+    public Step updateSalt(BigInteger s) {
+      return new Step(L, R, c, SaltedKey.create(saltedKey.P(), s));
     }
   }
 }
