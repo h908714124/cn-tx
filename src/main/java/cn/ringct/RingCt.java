@@ -3,14 +3,13 @@ package cn.ringct;
 import cn.ringct.Stepper.Step;
 import cn.wallet.Hash;
 import cn.wallet.Key;
-import org.bouncycastle.math.ec.ECPoint;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import org.bouncycastle.math.ec.ECPoint;
 
 public class RingCt {
 
@@ -62,11 +61,11 @@ public class RingCt {
     BigInteger s0 = alpha.subtract(c.multiply(x)).mod(n);
 
 
-    List<SaltedKey> extendedRing = concat(SaltedKey.create(P, s0), saltedRing);
-    int j = ThreadLocalRandom.current().nextInt(extendedRing.size());
-    extendedRing = rotateRandom(extendedRing, j);
-    List<Step> allSteps = concat(firstStep, steps);
-    return new SignedMessage(message, I, allSteps.get(Math.floorMod(allSteps.size() + j - 1, allSteps.size())).c(), extendedRing);
+    int j = ThreadLocalRandom.current().nextInt(ring.size() + 1);
+    List<Step> allSteps = concat(firstStep.updateKey(SaltedKey.create(P, s0)), steps);
+    allSteps = rotateRandom(allSteps, j);
+    List<SaltedKey> extendedRing = allSteps.stream().map(Step::key).collect(Collectors.toList());
+    return new SignedMessage(message, I, allSteps.get(allSteps.size() - 1).c(), extendedRing);
   }
 
   private static <E> List<E> rotateRandom(List<E> list, int j) {
