@@ -1,21 +1,19 @@
 package cn.wallet;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import cn.ringct.RingCt;
-import cn.ringct.SignedMessage;
-import cn.ringct.Stepper;
-import cn.ringct.Verifier;
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Optional;
+import cn.ringct.*;
 import org.bouncycastle.crypto.digests.KeccakDigest;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Optional;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class SenderTest {
 
@@ -27,9 +25,17 @@ class SenderTest {
       CURVE.getN(),
       CURVE.getG());
 
-  private final Stepper stepper = new Stepper(CURVE.getG(), hash);
+  private final Rand random = new Rand(CURVE.getN());
 
-  private final Verifier verifier = new Verifier(stepper);
+  private final Linker linker = new Linker(CURVE.getG(), random, hash);
+
+  private final Signer signer = new Signer(
+      CURVE.getN(),
+      hash,
+      random,
+      linker);
+
+  private final Verifier verifier = new Verifier(linker);
 
   private final Sender sender = new Sender(
       CURVE.getN(),
@@ -61,14 +67,8 @@ class SenderTest {
     PublicUserKey dest = x.publicKey();
     Transaction transaction = sender.send(dest);
     receiver.check(transaction).ifPresentOrElse(key -> {
-      RingCt ringCt = new RingCt(
-          CURVE.getN(),
-          List.of(P0, P1),
-          key,
-          hash,
-          stepper);
       String message = "test123";
-      SignedMessage signedMessage = ringCt.sign(message.getBytes(UTF_8));
+      SignedMessage signedMessage = signer.sign(message.getBytes(UTF_8), key, List.of(P0, P1));
       assertTrue(verifier.verify(signedMessage));
     }, () -> fail("no money"));
   }

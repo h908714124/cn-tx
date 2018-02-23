@@ -13,13 +13,13 @@ public class SignedMessage {
 
   private final BigInteger c;
 
-  private final List<SaltedKey> ring;
+  private final List<SaltyPoint> ring;
 
   SignedMessage(
       byte[] message,
       ECPoint I,
       BigInteger c,
-      List<SaltedKey> ring) {
+      List<SaltyPoint> ring) {
     this.message = message;
     this.I = I;
     this.c = c;
@@ -34,7 +34,7 @@ public class SignedMessage {
     return c;
   }
 
-  public List<SaltedKey> ring() {
+  public List<SaltyPoint> ring() {
     return ring;
   }
 

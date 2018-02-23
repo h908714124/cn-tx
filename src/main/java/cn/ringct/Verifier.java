@@ -1,32 +1,32 @@
 package cn.ringct;
 
-import cn.ringct.Stepper.Step;
+import cn.ringct.Linker.Link;
+import org.bouncycastle.math.ec.ECPoint;
+
 import java.math.BigInteger;
 import java.util.List;
-import org.bouncycastle.math.ec.ECPoint;
 
 public class Verifier {
 
-  private final Stepper stepper;
+  private final Linker linker;
 
-  public Verifier(Stepper stepper) {
-    this.stepper = stepper;
+  public Verifier(Linker linker) {
+    this.linker = linker;
   }
 
   public boolean verify(SignedMessage signedMessage) {
     byte[] message = signedMessage.message();
     ECPoint I = signedMessage.keyImage();
     BigInteger c = signedMessage.c();
+    Link link;
 
-    Step step = null;
-    List<SaltedKey> ring = signedMessage.ring();
+    List<SaltyPoint> ring = signedMessage.ring();
 
-    for (SaltedKey sk : ring) {
-      step = stepper.create(I, message, c, sk);
-      c = step.c();
+    for (SaltyPoint sk : ring) {
+      link = linker.nextLink(I, message, sk, c);
+      c = link.c();
     }
 
-    BigInteger final_c = step.c();
-    return final_c.equals(c);
+    return signedMessage.c().equals(c);
   }
 }
