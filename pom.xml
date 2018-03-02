@@ -9,8 +9,9 @@
   <version>0-SNAPSHOT</version>
 
   <description>
-    CRYPTONOTE UNLINKABLE TRANSACTIONS
-    SEE https://cryptonote.org/whitepaper.pdf
+    RING CONFIDENTIAL TRANSACTIONS
+    https://cryptonote.org/whitepaper.pdf
+    https://monero.stackexchange.com/questions/3683/can-someone-walk-me-through-a-simple-example-to-explain-how-ringct-works?noredirect=1&amp;lq=1
   </description>
 
   <properties>

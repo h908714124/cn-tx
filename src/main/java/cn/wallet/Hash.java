@@ -1,9 +1,8 @@
 package cn.wallet;
 
+import java.math.BigInteger;
 import org.bouncycastle.crypto.digests.KeccakDigest;
 import org.bouncycastle.math.ec.ECPoint;
-
-import java.math.BigInteger;
 
 public class Hash {
 
@@ -23,6 +22,14 @@ public class Hash {
     return h(A.getEncoded(false));
   }
 
+  public byte[] bytes(ECPoint A) {
+    return hb(new byte[][]{A.getEncoded(false)});
+  }
+
+  public BigInteger scalar(byte[] bytes) {
+    return h(bytes);
+  }
+
   public BigInteger scalar(byte[] message, ECPoint A, ECPoint B) {
     return h(message, A.getEncoded(false), B.getEncoded(false));
   }
@@ -32,6 +39,11 @@ public class Hash {
   }
 
   private BigInteger h(byte[]... data) {
+    byte[] out = hb(data);
+    return new BigInteger(out).mod(n);
+  }
+
+  private byte[] hb(byte[][] data) {
     for (byte[] bytes : data) {
       keccak.update(bytes, 0, bytes.length);
     }
@@ -41,6 +53,6 @@ public class Hash {
     }
     byte[] out = new byte[i];
     keccak.doFinal(out, 0);
-    return new BigInteger(out).mod(n);
+    return out;
   }
 }

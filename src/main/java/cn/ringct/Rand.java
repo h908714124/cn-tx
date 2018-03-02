@@ -1,10 +1,9 @@
 package cn.ringct;
 
-import org.bouncycastle.math.ec.ECPoint;
-
 import java.math.BigInteger;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import org.bouncycastle.math.ec.ECPoint;
 
 public class Rand {
 
@@ -18,7 +17,7 @@ public class Rand {
     return SaltyPoint.create(point, random());
   }
 
-  BigInteger random() {
+  public BigInteger random() {
     Random rnd = ThreadLocalRandom.current();
     BigInteger r;
     do {
