@@ -10,13 +10,13 @@ public class Sender {
 
   private final BigInteger l;
 
-  private final ECPoint g;
+  private final ECPoint G;
 
   private final Hash hash;
 
-  Sender(BigInteger l, ECPoint g, Hash hash) {
+  Sender(BigInteger l, ECPoint G, Hash hash) {
     this.l = l;
-    this.g = g;
+    this.G = G;
     this.hash = hash;
   }
 
@@ -26,8 +26,8 @@ public class Sender {
     BigInteger r = keygen();
 
     // compute the one-time key
-    ECPoint P = g.multiply(hash.scalar(A.multiply(r))).add(B);
-    ECPoint R = g.multiply(r);
+    ECPoint P = G.multiply(hash.scalar(A.multiply(r))).add(B);
+    ECPoint R = G.multiply(r);
     return Transaction.create(P, R);
   }
 

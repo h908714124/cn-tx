@@ -1,15 +1,16 @@
 package cn.ecdh;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-
 import cn.wallet.Hash;
 import cn.wallet.Key;
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import org.bouncycastle.crypto.digests.KeccakDigest;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class KeyExchangeTest {
 
@@ -20,9 +21,7 @@ class KeyExchangeTest {
 
   private final Hash hash = new Hash(keccak, CURVE.getN(), CURVE.getG());
 
-  private final AESBouncyCastle aes = new AESBouncyCastle();
-
-  private final KeyExchange keyExchange = new KeyExchange(hash, aes);
+  private final KeyExchange keyExchange = new KeyExchange(hash, CURVE.getN());
 
   private final BigInteger x =
       number("2de7089f15096ae7d45d6e85fe00669da2a91610097c932a757850f1e65102e");
@@ -36,10 +35,10 @@ class KeyExchangeTest {
 
   @Test
   void encryptDecrypt() {
-    byte[] message = "test123".getBytes(StandardCharsets.UTF_8);
-    byte[] encrypted = keyExchange.encrypt(alice, bob.publicKey(), message);
-    byte[] decrypted = keyExchange.decrypt(bob, alice.publicKey(), encrypted);
-    assertArrayEquals(message, decrypted);
+    BigInteger message = new BigInteger("test123".getBytes(StandardCharsets.UTF_8));
+    BigInteger encrypted = keyExchange.encrypt(alice, bob.publicKey(), message);
+    BigInteger decrypted = keyExchange.decrypt(bob, alice.publicKey(), encrypted);
+    assertEquals(message, decrypted);
   }
 
   private BigInteger number(String bytes) {

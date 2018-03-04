@@ -23,7 +23,7 @@ public class Verifier {
     List<SaltyPoint> ring = signedMessage.ring();
 
     for (SaltyPoint sk : ring) {
-      link = linker.nextLink(I, message, sk, c);
+      link = linker.createLink(I, message, sk, c);
       c = link.c();
     }
 

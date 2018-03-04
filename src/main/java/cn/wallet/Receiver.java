@@ -8,7 +8,9 @@ import java.util.Optional;
 public class Receiver {
 
   private final PrivateUserKey myKey;
+
   private final Hash hash;
+
   private final ECPoint G;
 
   Receiver(ECPoint G, PrivateUserKey myKey, Hash hash) {

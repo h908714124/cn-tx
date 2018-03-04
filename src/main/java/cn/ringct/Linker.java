@@ -19,7 +19,7 @@ public class Linker {
     this.hash = hash;
   }
 
-  Link nextLink(
+  Link createLink(
       ECPoint I,
       byte[] message,
       SaltyPoint saltyPoint,
@@ -31,7 +31,7 @@ public class Linker {
     return create(message, saltyPoint, L, R);
   }
 
-  Link firstLink(
+  Link initLink(
       byte[] message,
       ECPoint P) {
     SaltyPoint alpha = SaltyPoint.create(P, random.random());

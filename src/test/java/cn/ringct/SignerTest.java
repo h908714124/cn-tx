@@ -4,7 +4,7 @@ import cn.wallet.Hash;
 import cn.wallet.Key;
 import org.bouncycastle.crypto.digests.KeccakDigest;
 import org.bouncycastle.jce.ECNamedCurveTable;
-import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
+import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SignerTest {
 
-  private static final ECNamedCurveParameterSpec CURVE =
+  private static final ECParameterSpec CURVE =
       ECNamedCurveTable.getParameterSpec("curve25519");
 
   private final BigInteger x =

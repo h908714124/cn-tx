@@ -3,7 +3,7 @@ package cn.wallet;
 import cn.ringct.*;
 import org.bouncycastle.crypto.digests.KeccakDigest;
 import org.bouncycastle.jce.ECNamedCurveTable;
-import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
+import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 class SenderTest {
 
-  private static final ECNamedCurveParameterSpec CURVE =
+  private static final ECParameterSpec CURVE =
       ECNamedCurveTable.getParameterSpec("curve25519");
 
   private final Hash hash = new Hash(
