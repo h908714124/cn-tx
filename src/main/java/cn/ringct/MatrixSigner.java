@@ -10,7 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import org.bouncycastle.math.ec.ECPoint;
 
-public class Signer {
+public class MatrixSigner {
 
   private final BigInteger n;
 
@@ -20,7 +20,7 @@ public class Signer {
 
   private final Linker linker;
 
-  public Signer(
+  public MatrixSigner(
       BigInteger n,
       Hash hash,
       Rand random,
@@ -31,18 +31,22 @@ public class Signer {
     this.linker = linker;
   }
 
-  public SignedMessage sign(byte[] message, Key myKey, List<ECPoint> members) {
+  public SignedMessage sign(byte[] message, KeyVector myKey, KeyMatrix members) {
 
-    List<SaltyPoint> saltyPoints = members.stream()
+    if (myKey.length() != members.rows()) {
+      throw new IllegalArgumentException("Bad myKey size");
+    }
+
+    List<SaltyVector> saltyPoints = members.columns().stream()
         .map(random::salt)
         .collect(Collectors.toList());
 
-    ECPoint P = myKey.publicKey();
-    BigInteger x = myKey.privateKey();
-    ECPoint I = hash.point(P).multiply(x);
+    PointVector P = myKey.publicKeys();
+    NumberVector x = myKey.privateKeys();
+    PointVector I = hash.points(P).multiply(x);
 
-    BigInteger alpha = random.random();
-    SaltyPoint initPoint = SaltyPoint.create(P, alpha);
+    NumberVector alpha = random.randomVector(members.rows());
+    SaltyVector initPoint = SaltyVector.create(P, alpha);
     Link init = linker.initLink(message, initPoint);
     List<Link> ring = addLinks(message, saltyPoints, I, init);
 

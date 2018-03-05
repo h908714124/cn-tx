@@ -1,6 +1,9 @@
 package cn.wallet;
 
+import cn.ringct.PointVector;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import org.bouncycastle.crypto.digests.KeccakDigest;
 import org.bouncycastle.math.ec.ECPoint;
 
@@ -36,6 +39,14 @@ public class Hash {
 
   public ECPoint point(ECPoint A) {
     return G.multiply(h(A.getEncoded(false)));
+  }
+
+  public PointVector points(PointVector points) {
+    List<ECPoint> result = new ArrayList<>(points.size());
+    for (ECPoint A : points.points()) {
+      result.add(point(A));
+    }
+    return new PointVector(result);
   }
 
   private BigInteger h(byte[]... data) {

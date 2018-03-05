@@ -10,8 +10,8 @@
 
   <description>
     RING CONFIDENTIAL TRANSACTIONS
-    https://cryptonote.org/whitepaper.pdf
-    https://monero.stackexchange.com/questions/3683/can-someone-walk-me-through-a-simple-example-to-explain-how-ringct-works?noredirect=1&amp;lq=1
+    http://eprint.iacr.org/2015/1098
+    https://monero.stackexchange.com/questions/3683/can-someone-walk-me-through-a-simple-example-to-explain-how-ringct-works
   </description>
 
   <properties>
