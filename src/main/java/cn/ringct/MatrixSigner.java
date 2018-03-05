@@ -1,16 +1,14 @@
 package cn.ringct;
 
-import cn.ringct.Linker.Link;
+import cn.ringct.MatrixLinker.Link;
 import cn.wallet.Hash;
-import cn.wallet.Key;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
-import org.bouncycastle.math.ec.ECPoint;
 
-public class Signer {
+public class MatrixSigner {
 
   private final BigInteger n;
 
@@ -18,31 +16,35 @@ public class Signer {
 
   private final Rand random;
 
-  private final Linker linker;
+  private final MatrixLinker linker;
 
-  public Signer(
+  public MatrixSigner(
       BigInteger n,
       Hash hash,
       Rand random,
-      Linker linker) {
+      MatrixLinker linker) {
     this.n = n;
     this.hash = hash;
     this.random = random;
     this.linker = linker;
   }
 
-  public SignedMessage sign(byte[] message, Key myKey, List<ECPoint> members) {
+  public MatrixSignedMessage sign(byte[] message, KeyVector myKey, KeyMatrix members) {
 
-    List<SaltyPoint> saltyPoints = members.stream()
+    if (myKey.length() != members.rows()) {
+      throw new IllegalArgumentException("Bad key size");
+    }
+
+    List<SaltyVector> saltyPoints = members.columns().stream()
         .map(random::salt)
         .collect(Collectors.toList());
 
-    ECPoint P = myKey.publicKey();
-    BigInteger x = myKey.privateKey();
-    ECPoint I = hash.point(P).multiply(x);
+    PointVector P = myKey.publicKeys();
+    NumberVector x = myKey.privateKeys();
+    PointVector I = hash.points(P).multiply(x);
 
-    BigInteger alpha = random.random();
-    SaltyPoint initPoint = SaltyPoint.create(P, alpha);
+    NumberVector alpha = random.randomVector(members.rows());
+    SaltyVector initPoint = SaltyVector.create(P, alpha);
     Link init = linker.initLink(message, initPoint);
     List<Link> ring = addLinks(message, saltyPoints, I, init);
 
@@ -58,31 +60,31 @@ public class Signer {
     rotateRandom(ring);
 
     BigInteger c = ring.get(members.size()).c();
-    return new SignedMessage(message, I, c,
+    return new MatrixSignedMessage(message, I, c,
         ring.stream().map(Link::key).collect(Collectors.toList()));
   }
 
   private Link createMergeLink(
       byte[] message,
-      Key myKey,
-      ECPoint I,
-      BigInteger alpha,
+      KeyVector myKey,
+      PointVector I,
+      NumberVector alpha,
       BigInteger finalC) {
-    ECPoint P = myKey.publicKey();
-    BigInteger x = myKey.privateKey();
-    BigInteger magicSalt = alpha.subtract(finalC.multiply(x)).mod(n);
-    SaltyPoint mySaltyPoint = SaltyPoint.create(P, magicSalt);
+    PointVector P = myKey.publicKeys();
+    NumberVector x = myKey.privateKeys();
+    NumberVector magicSalt = alpha.subtract(x.multiply(finalC)).mod(n);
+    SaltyVector mySaltyPoint = SaltyVector.create(P, magicSalt);
     return linker.createLink(I, message, mySaltyPoint, finalC);
   }
 
   private ArrayList<Link> addLinks(
       byte[] message,
-      List<SaltyPoint> saltyPoints,
-      ECPoint I,
+      List<SaltyVector> saltyPoints,
+      PointVector I,
       Link init) {
     Link prev = init;
     ArrayList<Link> links = new ArrayList<>(saltyPoints.size() + 1);
-    for (SaltyPoint saltyPoint : saltyPoints) {
+    for (SaltyVector saltyPoint : saltyPoints) {
       Link link = linker.createLink(I, message, saltyPoint, prev.c());
       links.add(link);
       prev = link;
