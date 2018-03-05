@@ -3,13 +3,12 @@ package cn.ringct;
 import cn.ringct.Linker.Link;
 import cn.wallet.Hash;
 import cn.wallet.Key;
-import org.bouncycastle.math.ec.ECPoint;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import org.bouncycastle.math.ec.ECPoint;
 
 public class Signer {
 
@@ -42,10 +41,13 @@ public class Signer {
     BigInteger x = myKey.privateKey();
     ECPoint I = hash.point(P).multiply(x);
 
-    Link init = linker.initLink(message, P);
-    ArrayList<Link> ring = addLinks(message, saltyPoints, I, init);
+    BigInteger alpha = random.random();
+    SaltyPoint initPoint = SaltyPoint.create(P, alpha);
+    Link init = linker.initLink(message, initPoint);
+    List<Link> ring = addLinks(message, saltyPoints, I, init);
 
-    Link mergeLink = createMergeLink(message, myKey, I, init.s(), ring.get(ring.size() - 1).c());
+    BigInteger finalC = ring.get(ring.size() - 1).c();
+    Link mergeLink = createMergeLink(message, myKey, I, alpha, finalC);
 
     assert mergeLink.c().equals(init.c());
 
@@ -55,7 +57,8 @@ public class Signer {
     // Spin the ring, so the signer's index isn't always 0.
     rotateRandom(ring);
 
-    return new SignedMessage(message, I, ring.get(ring.size() - 1).c(),
+    BigInteger c = ring.get(members.size()).c();
+    return new SignedMessage(message, I, c,
         ring.stream().map(Link::key).collect(Collectors.toList()));
   }
 
@@ -64,12 +67,12 @@ public class Signer {
       Key myKey,
       ECPoint I,
       BigInteger alpha,
-      BigInteger last_c) {
+      BigInteger finalC) {
     ECPoint P = myKey.publicKey();
     BigInteger x = myKey.privateKey();
-    BigInteger magicSalt = alpha.subtract(last_c.multiply(x)).mod(n);
+    BigInteger magicSalt = alpha.subtract(finalC.multiply(x)).mod(n);
     SaltyPoint mySaltyPoint = SaltyPoint.create(P, magicSalt);
-    return linker.createLink(I, message, mySaltyPoint, last_c);
+    return linker.createLink(I, message, mySaltyPoint, finalC);
   }
 
   private ArrayList<Link> addLinks(
@@ -87,7 +90,7 @@ public class Signer {
     return links;
   }
 
-  private static <E> void rotateRandom(ArrayList<E> list) {
+  private static <E> void rotateRandom(List<E> list) {
     int j = ThreadLocalRandom.current().nextInt(list.size() + 1);
     for (int d = 0; d < j; d++) {
       E temp = list.get(0);

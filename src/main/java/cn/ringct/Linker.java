@@ -1,21 +1,17 @@
 package cn.ringct;
 
 import cn.wallet.Hash;
-import org.bouncycastle.math.ec.ECPoint;
-
 import java.math.BigInteger;
+import org.bouncycastle.math.ec.ECPoint;
 
 public class Linker {
 
   private final ECPoint G;
 
-  private final Rand random;
-
   private final Hash hash;
 
-  public Linker(ECPoint G, Rand random, Hash hash) {
+  public Linker(ECPoint G, Hash hash) {
     this.G = G;
-    this.random = random;
     this.hash = hash;
   }
 
@@ -33,9 +29,9 @@ public class Linker {
 
   Link initLink(
       byte[] message,
-      ECPoint P) {
-    SaltyPoint alpha = SaltyPoint.create(P, random.random());
+      SaltyPoint alpha) {
     BigInteger s = alpha.s();
+    ECPoint P = alpha.P();
     ECPoint L = G.multiply(s);
     ECPoint R = hash.point(P).multiply(s);
     return create(message, alpha, L, R);
@@ -67,10 +63,6 @@ public class Linker {
 
     public SaltyPoint key() {
       return saltyPoint;
-    }
-
-    public BigInteger s() {
-      return saltyPoint.s();
     }
 
     @Override

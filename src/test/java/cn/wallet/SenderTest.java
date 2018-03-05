@@ -1,19 +1,22 @@
 package cn.wallet;
 
-import cn.ringct.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import cn.ringct.Linker;
+import cn.ringct.Rand;
+import cn.ringct.SignedMessage;
+import cn.ringct.Signer;
+import cn.ringct.Verifier;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Optional;
 import org.bouncycastle.crypto.digests.KeccakDigest;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
 import org.junit.jupiter.api.Test;
-
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Optional;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 class SenderTest {
 
@@ -27,7 +30,7 @@ class SenderTest {
 
   private final Rand random = new Rand(CURVE.getN());
 
-  private final Linker linker = new Linker(CURVE.getG(), random, hash);
+  private final Linker linker = new Linker(CURVE.getG(), hash);
 
   private final Signer signer = new Signer(
       CURVE.getN(),

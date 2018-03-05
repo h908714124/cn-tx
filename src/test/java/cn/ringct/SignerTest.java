@@ -31,7 +31,7 @@ class SignerTest {
 
   private final Rand random = new Rand(CURVE.getN());
 
-  private final Linker linker = new Linker(CURVE.getG(), random, hash);
+  private final Linker linker = new Linker(CURVE.getG(), hash);
 
   private final Verifier verifier = new Verifier(linker);
 
