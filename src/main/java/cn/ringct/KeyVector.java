@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public final class KeyVector {
+
   private final List<Key> keys;
 
   public KeyVector(List<Key> keys) {

@@ -32,22 +32,20 @@ public class Signer {
   // http://eprint.iacr.org/2015/1098
   public SignedMessage sign(byte[] message, KeyVector myKey, KeyMatrix members) {
 
-    if (myKey.length() != members.rows()) {
+    if (myKey.length() != members.height()) {
       throw new IllegalArgumentException("Bad key size");
     }
 
-    List<SaltyVector> saltyPoints = members.columns().stream()
-        .map(random::salt)
-        .collect(Collectors.toList());
+    SaltyMatrix saltyPoints = members.salt(random);
 
     PointVector P = myKey.publicKeys();
     NumberVector x = myKey.privateKeys();
     PointVector I = hash.points(P).multiply(x);
 
-    NumberVector alpha = random.randomVector(members.rows());
+    NumberVector alpha = random.randomVector(members.height());
     SaltyVector initPoint = SaltyVector.create(P, alpha);
     Link init = linker.initLink(message, initPoint);
-    List<Link> ring = addLinks(message, saltyPoints, I, init);
+    List<Link> ring = createInitialRing(message, saltyPoints, I, init);
 
     BigInteger finalC = ring.get(ring.size() - 1).c();
     Link mergeLink = createMergeLink(message, myKey, I, alpha, finalC);
@@ -60,7 +58,7 @@ public class Signer {
     // Spin the ring, so the signer's index isn't known.
     random.spin(ring);
 
-    BigInteger c = ring.get(members.size()).c();
+    BigInteger c = ring.get(members.width()).c();
     return new SignedMessage(message, I, c,
         ring.stream().map(Link::key).collect(Collectors.toList()));
   }
@@ -78,15 +76,15 @@ public class Signer {
     return linker.createLink(I, message, mySalt, finalC);
   }
 
-  private List<Link> addLinks(
+  private List<Link> createInitialRing(
       byte[] message,
-      List<SaltyVector> saltyPoints,
+      SaltyMatrix saltyVectors,
       PointVector I,
       Link init) {
     Link prev = init;
-    ArrayList<Link> links = new ArrayList<>(saltyPoints.size() + 1);
-    for (SaltyVector saltyPoint : saltyPoints) {
-      Link link = linker.createLink(I, message, saltyPoint, prev.c());
+    ArrayList<Link> links = new ArrayList<>(saltyVectors.width() + 1);
+    for (SaltyVector column : saltyVectors.columns()) {
+      Link link = linker.createLink(I, message, column, prev.c());
       links.add(link);
       prev = link;
     }

@@ -41,15 +41,17 @@ public class KeyMatrix {
         .collect(Collectors.toList()));
   }
 
-  public List<PointVector> columns() {
-    return columns;
+  public SaltyMatrix salt(Rand random) {
+    return new SaltyMatrix(columns.stream()
+        .map(random::salt)
+        .collect(Collectors.toList()));
   }
 
-  public int size() {
-    return columns().size();
+  public int height() {
+    return columns.get(0).length();
   }
 
-  public int rows() {
-    return columns().get(0).length();
+  public int width() {
+    return columns.size();
   }
 }

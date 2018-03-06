@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.bouncycastle.math.ec.ECPoint;
 
-public class SaltyVector {
+class SaltyVector {
 
   private final List<SaltyPoint> points;
 
@@ -24,7 +24,7 @@ public class SaltyVector {
     return new SaltyVector(result);
   }
 
-  public NumberVector s() {
+  NumberVector s() {
     List<BigInteger> result = new ArrayList<>(points.size());
     for (SaltyPoint point : points) {
       result.add(point.s());
@@ -32,7 +32,7 @@ public class SaltyVector {
     return new NumberVector(result);
   }
 
-  public PointVector P() {
+  PointVector P() {
     List<ECPoint> result = new ArrayList<>(points.size());
     for (SaltyPoint point : points) {
       result.add(point.P());

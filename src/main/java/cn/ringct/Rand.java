@@ -15,19 +15,19 @@ public class Rand {
     this.n = n;
   }
 
-  SaltyPoint salt(ECPoint point) {
+  private SaltyPoint salt(ECPoint point) {
     return SaltyPoint.create(point, random());
   }
 
   SaltyVector salt(PointVector vector) {
     List<SaltyPoint> result = new ArrayList<>(vector.points().size());
     for (ECPoint point : vector.points()) {
-      result.add(SaltyPoint.create(point, random()));
+      result.add(salt(point));
     }
     return new SaltyVector(result);
   }
 
-  public BigInteger random() {
+  private BigInteger random() {
     Random rnd = ThreadLocalRandom.current();
     BigInteger r;
     do {
@@ -45,7 +45,12 @@ public class Rand {
   }
 
   public <E> void spin(List<E> list) {
-    int j = ThreadLocalRandom.current().nextInt(list.size() + 1);
+    int j = ThreadLocalRandom.current().nextInt(list.size());
+    spin(list, j);
+  }
+
+  <E> void spin(List<E> list, int j) {
+    j = Math.floorMod(j, list.size());
     for (int d = 0; d < j; d++) {
       E temp = list.get(0);
       for (int i = 1; i < list.size(); i++) {

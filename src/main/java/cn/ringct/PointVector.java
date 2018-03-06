@@ -6,6 +6,7 @@ import java.util.List;
 import org.bouncycastle.math.ec.ECPoint;
 
 public final class PointVector {
+
   private final List<ECPoint> points;
 
   public PointVector(List<ECPoint> points) {
@@ -33,8 +34,8 @@ public final class PointVector {
 
   public PointVector multiply(BigInteger x) {
     List<ECPoint> result = new ArrayList<>(points.size());
-    for (int i = 0; i < points.size(); i++) {
-      result.add(points.get(i).multiply(x));
+    for (ECPoint point : points) {
+      result.add(point.multiply(x));
     }
     return new PointVector(result);
   }

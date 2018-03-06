@@ -4,7 +4,7 @@ import org.bouncycastle.math.ec.ECPoint;
 
 import java.math.BigInteger;
 
-public class SaltyPoint {
+class SaltyPoint {
 
   private final ECPoint P;
 
@@ -19,11 +19,11 @@ public class SaltyPoint {
     return new SaltyPoint(P, s);
   }
 
-  public ECPoint P() {
+  ECPoint P() {
     return P;
   }
 
-  public BigInteger s() {
+  BigInteger s() {
     return s;
   }
 }

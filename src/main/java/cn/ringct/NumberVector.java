@@ -6,6 +6,7 @@ import java.util.List;
 import org.bouncycastle.math.ec.ECPoint;
 
 final class NumberVector {
+
   private final List<BigInteger> numbers;
 
   NumberVector(List<BigInteger> numbers) {
