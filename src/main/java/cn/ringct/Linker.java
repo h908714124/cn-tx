@@ -16,32 +16,32 @@ public class Linker {
   }
 
   Link createLink(
-      ECPoint I,
+      PointVector I,
       byte[] message,
-      SaltyPoint saltyPoint,
+      SaltyVector saltyPoint,
       BigInteger c) {
-    BigInteger s = saltyPoint.s();
-    ECPoint P = saltyPoint.P();
-    ECPoint L = G.multiply(s).add(P.multiply(c));
-    ECPoint R = hash.point(P).multiply(s).add(I.multiply(c));
+    NumberVector s = saltyPoint.s();
+    PointVector P = saltyPoint.P();
+    PointVector L = s.multiply(G).add(P.multiply(c));
+    PointVector R = hash.points(P).multiply(s).add(I.multiply(c));
     return create(message, saltyPoint, L, R);
   }
 
   Link initLink(
       byte[] message,
-      SaltyPoint alpha) {
-    BigInteger s = alpha.s();
-    ECPoint P = alpha.P();
-    ECPoint L = G.multiply(s);
-    ECPoint R = hash.point(P).multiply(s);
+      SaltyVector alpha) {
+    NumberVector s = alpha.s();
+    PointVector P = alpha.P();
+    PointVector L = s.multiply(G);
+    PointVector R = hash.points(P).multiply(s);
     return create(message, alpha, L, R);
   }
 
   private Link create(
       byte[] message,
-      SaltyPoint saltyPoint,
-      ECPoint L,
-      ECPoint R) {
+      SaltyVector saltyPoint,
+      PointVector L,
+      PointVector R) {
     BigInteger c = hash.scalar(message, L, R);
     return new Link(c, saltyPoint);
   }
@@ -50,19 +50,19 @@ public class Linker {
 
     private final BigInteger c;
 
-    private final SaltyPoint saltyPoint;
+    private final SaltyVector saltyVector;
 
-    Link(BigInteger c, SaltyPoint saltyPoint) {
+    Link(BigInteger c, SaltyVector saltyVector) {
       this.c = c;
-      this.saltyPoint = saltyPoint;
+      this.saltyVector = saltyVector;
     }
 
     BigInteger c() {
       return c;
     }
 
-    public SaltyPoint key() {
-      return saltyPoint;
+    public SaltyVector key() {
+      return saltyVector;
     }
 
     @Override

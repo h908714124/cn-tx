@@ -43,4 +43,15 @@ public class Rand {
     }
     return new NumberVector(result);
   }
+
+  public <E> void spin(List<E> list) {
+    int j = ThreadLocalRandom.current().nextInt(list.size() + 1);
+    for (int d = 0; d < j; d++) {
+      E temp = list.get(0);
+      for (int i = 1; i < list.size(); i++) {
+        list.set(i - 1, list.get(i));
+      }
+      list.set(list.size() - 1, temp);
+    }
+  }
 }

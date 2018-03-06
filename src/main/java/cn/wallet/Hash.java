@@ -38,13 +38,13 @@ public class Hash {
   }
 
   public BigInteger scalar(byte[] message, PointVector A, PointVector B) {
-    byte[][] bytes = new byte[A.size() + B.size() + 1][];
+    byte[][] bytes = new byte[A.length() + B.length() + 1][];
     bytes[0] = message;
-    for (int i = 1; i < A.size() + 1; i++) {
-      bytes[i] = A.get(i).getEncoded(false);
+    for (int i = 0; i < A.length(); i++) {
+      bytes[i + 1] = A.get(i).getEncoded(false);
     }
-    for (int i = A.size() + 1; i < bytes.length; i++) {
-      bytes[i] = B.get(i).getEncoded(false);
+    for (int i = 0; i < B.length(); i++) {
+      bytes[i + A.length() + 1] = B.get(i).getEncoded(false);
     }
     return h(bytes);
   }
@@ -54,7 +54,7 @@ public class Hash {
   }
 
   public PointVector points(PointVector points) {
-    List<ECPoint> result = new ArrayList<>(points.size());
+    List<ECPoint> result = new ArrayList<>(points.length());
     for (ECPoint A : points.points()) {
       result.add(point(A));
     }

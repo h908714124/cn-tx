@@ -9,23 +9,19 @@ public class SaltyVector {
 
   private final List<SaltyPoint> points;
 
-  private SaltyVector(List<SaltyPoint> points) {
+  SaltyVector(List<SaltyPoint> points) {
     this.points = points;
   }
 
   static SaltyVector create(PointVector P, NumberVector s) {
-    if (P.size() != s.size()) {
+    if (P.length() != s.length()) {
       throw new IllegalArgumentException();
     }
-    List<SaltyPoint> result = new ArrayList<>(P.size());
-    for (int i = 0; i < s.size(); i++) {
+    List<SaltyPoint> result = new ArrayList<>(P.length());
+    for (int i = 0; i < s.length(); i++) {
       result.add(SaltyPoint.create(P.get(i), s.get(i)));
     }
     return new SaltyVector(result);
-  }
-
-  public List<SaltyPoint> columns() {
-    return points;
   }
 
   public NumberVector s() {

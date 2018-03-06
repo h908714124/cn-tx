@@ -16,12 +16,12 @@ public final class PointVector {
     return points;
   }
 
-  public int size() {
+  public int length() {
     return points.size();
   }
 
   public PointVector multiply(NumberVector x) {
-    if (x.size() != points.size()) {
+    if (x.length() != points.size()) {
       throw new IllegalArgumentException();
     }
     List<ECPoint> result = new ArrayList<>(points.size());
@@ -40,7 +40,7 @@ public final class PointVector {
   }
 
   public PointVector add(PointVector x) {
-    if (x.size() != points.size()) {
+    if (x.length() != points.size()) {
       throw new IllegalArgumentException();
     }
     List<ECPoint> result = new ArrayList<>(points.size());

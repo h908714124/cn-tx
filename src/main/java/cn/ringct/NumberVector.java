@@ -12,11 +12,7 @@ final class NumberVector {
     this.numbers = numbers;
   }
 
-  public List<BigInteger> numbers() {
-    return numbers;
-  }
-
-  public int size() {
+  public int length() {
     return numbers.size();
   }
 
@@ -42,11 +38,11 @@ final class NumberVector {
   }
 
   public NumberVector subtract(NumberVector v) {
-    if (v.size() != numbers.size()) {
+    if (v.length() != numbers.size()) {
       throw new IllegalArgumentException();
     }
-    List<BigInteger> result = new ArrayList<>(v.size());
-    for (int i = 0; i < v.size(); i++) {
+    List<BigInteger> result = new ArrayList<>(v.length());
+    for (int i = 0; i < v.length(); i++) {
       result.add(numbers.get(i).subtract(v.get(i)));
     }
     return new NumberVector(result);

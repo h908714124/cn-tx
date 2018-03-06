@@ -1,7 +1,5 @@
 package cn.ringct;
 
-import org.bouncycastle.math.ec.ECPoint;
-
 import java.math.BigInteger;
 import java.util.List;
 
@@ -9,24 +7,24 @@ public class SignedMessage {
 
   private final byte[] message;
 
-  private final ECPoint I;
+  private final PointVector I;
 
   private final BigInteger c;
 
-  private final List<SaltyPoint> ring;
+  private final List<SaltyVector> ring;
 
   SignedMessage(
       byte[] message,
-      ECPoint I,
+      PointVector I,
       BigInteger c,
-      List<SaltyPoint> ring) {
+      List<SaltyVector> ring) {
     this.message = message;
     this.I = I;
     this.c = c;
     this.ring = ring;
   }
 
-  public ECPoint keyImage() {
+  public PointVector keyImage() {
     return I;
   }
 
@@ -34,7 +32,7 @@ public class SignedMessage {
     return c;
   }
 
-  public List<SaltyPoint> ring() {
+  public List<SaltyVector> ring() {
     return ring;
   }
 
