@@ -5,32 +5,32 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.bouncycastle.math.ec.ECPoint;
 
-public class KeyMatrix {
+public class PointMatrix {
 
-  // Each member owns all keys in one of the columns.
-  private final List<PointVector> columns;
+  private final List<PointColumn> columns;
 
-  private KeyMatrix(List<PointVector> columns) {
+  private PointMatrix(List<PointColumn> columns) {
     this.columns = columns;
   }
 
-  public static KeyMatrix create(List<List<ECPoint>> rows) {
+  public static PointMatrix create(List<List<ECPoint>> rows) {
     List<List<ECPoint>> columns = transpose(rows);
-    return new KeyMatrix(columns.stream()
-        .map(PointVector::new)
+    return new PointMatrix(columns.stream()
+        .map(PointColumn::new)
         .collect(Collectors.toList()));
   }
 
   private static List<List<ECPoint>> transpose(List<List<ECPoint>> rows) {
-    int width = rows.get(0).size();
     int height = rows.size();
-    assert width >= 2 : "need at least 2 members";
+    assert height >= 1 : "need at least 1 row";
+    int width = rows.get(0).size();
+    assert width >= 1 : "need at least 1 column";
     List<List<ECPoint>> columns = new ArrayList<>(width);
     for (int i = 0; i < width; i++) {
       columns.add(new ArrayList<>(height));
     }
     for (List<ECPoint> row : rows) {
-      assert row.size() == width;
+      assert row.size() == width : "not rectangular";
       for (int c = 0; c < width; c++) {
         columns.get(c).add(row.get(c));
       }
@@ -45,7 +45,7 @@ public class KeyMatrix {
   }
 
   public int height() {
-    return columns.get(0).length();
+    return columns.get(0).height();
   }
 
   public int width() {

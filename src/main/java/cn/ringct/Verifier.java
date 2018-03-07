@@ -2,7 +2,6 @@ package cn.ringct;
 
 import cn.ringct.Linker.Link;
 import java.math.BigInteger;
-import java.util.List;
 
 public class Verifier {
 
@@ -16,13 +15,13 @@ public class Verifier {
   // http://eprint.iacr.org/2015/1098
   public boolean verify(SignedMessage signedMessage) {
     byte[] message = signedMessage.message();
-    PointVector I = signedMessage.keyImage();
+    PointColumn I = signedMessage.keyImage();
     BigInteger c = signedMessage.c();
     Link link;
 
-    List<SaltyVector> ring = signedMessage.ring();
+    SaltyMatrix ring = signedMessage.ring();
 
-    for (SaltyVector sk : ring) {
+    for (SaltyColumn sk : ring.columns()) {
       link = linker.createLink(I, message, sk, c);
       c = link.c();
     }

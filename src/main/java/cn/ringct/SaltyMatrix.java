@@ -4,9 +4,9 @@ import java.util.List;
 
 class SaltyMatrix {
 
-  private final List<SaltyVector> columns;
+  private final List<SaltyColumn> columns;
 
-  SaltyMatrix(List<SaltyVector> columns) {
+  SaltyMatrix(List<SaltyColumn> columns) {
     this.columns = columns;
   }
 
@@ -14,7 +14,7 @@ class SaltyMatrix {
     return columns.size();
   }
 
-  List<SaltyVector> columns() {
+  List<SaltyColumn> columns() {
     return columns;
   }
 }

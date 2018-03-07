@@ -1,6 +1,6 @@
 package cn.wallet;
 
-import cn.ringct.PointVector;
+import cn.ringct.PointColumn;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,14 +37,14 @@ public class Hash {
     return h(message, A.getEncoded(false), B.getEncoded(false));
   }
 
-  public BigInteger scalar(byte[] message, PointVector A, PointVector B) {
-    byte[][] bytes = new byte[A.length() + B.length() + 1][];
+  public BigInteger scalar(byte[] message, PointColumn A, PointColumn B) {
+    byte[][] bytes = new byte[A.height() + B.height() + 1][];
     bytes[0] = message;
-    for (int i = 0; i < A.length(); i++) {
+    for (int i = 0; i < A.height(); i++) {
       bytes[i + 1] = A.get(i).getEncoded(false);
     }
-    for (int i = 0; i < B.length(); i++) {
-      bytes[i + A.length() + 1] = B.get(i).getEncoded(false);
+    for (int i = 0; i < B.height(); i++) {
+      bytes[i + A.height() + 1] = B.get(i).getEncoded(false);
     }
     return h(bytes);
   }
@@ -53,12 +53,12 @@ public class Hash {
     return G.multiply(h(A.getEncoded(false)));
   }
 
-  public PointVector points(PointVector points) {
-    List<ECPoint> result = new ArrayList<>(points.length());
+  public PointColumn points(PointColumn points) {
+    List<ECPoint> result = new ArrayList<>(points.height());
     for (ECPoint A : points.points()) {
       result.add(point(A));
     }
-    return new PointVector(result);
+    return new PointColumn(result);
   }
 
   private BigInteger h(byte[]... data) {

@@ -23,7 +23,7 @@ class MatrixSignerTest {
   private final BigInteger x1 =
       number("9f9c1c2843dbfd8e1e8799a4740d5c26a588d64ee31c05b41538ccadbd4ebac");
 
-  private final KeyVector myKey = new KeyVector(List.of(
+  private final KeyColumn myKey = new KeyColumn(List.of(
       new Key(CURVE.getG(), x0),
       new Key(CURVE.getG(), x1)));
 
@@ -59,10 +59,10 @@ class MatrixSignerTest {
   @Test
   void signAndVerify() {
     String message = "test123";
-    KeyMatrix keyMatrix = KeyMatrix.create(List.of(
+    PointMatrix pointMatrix = PointMatrix.create(List.of(
         List.of(P0, Q0),
         List.of(P1, Q1)));
-    SignedMessage signedMessage = signer.sign(message.getBytes(StandardCharsets.UTF_8), myKey, keyMatrix);
+    SignedMessage signedMessage = signer.sign(message.getBytes(StandardCharsets.UTF_8), myKey, pointMatrix);
     assertTrue(verifier.verify(signedMessage));
   }
 

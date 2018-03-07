@@ -19,12 +19,12 @@ public class Rand {
     return SaltyPoint.create(point, random());
   }
 
-  SaltyVector salt(PointVector vector) {
+  SaltyColumn salt(PointColumn vector) {
     List<SaltyPoint> result = new ArrayList<>(vector.points().size());
     for (ECPoint point : vector.points()) {
       result.add(salt(point));
     }
-    return new SaltyVector(result);
+    return new SaltyColumn(result);
   }
 
   private BigInteger random() {
@@ -36,12 +36,12 @@ public class Rand {
     return r;
   }
 
-  public NumberVector randomVector(int size) {
+  public NumberColumn randomVector(int size) {
     List<BigInteger> result = new ArrayList<>(size);
     for (int i = 0; i < size; i++) {
       result.add(random());
     }
-    return new NumberVector(result);
+    return new NumberColumn(result);
   }
 
   public <E> void spin(List<E> list) {

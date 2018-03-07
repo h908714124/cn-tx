@@ -5,7 +5,6 @@ import cn.wallet.Hash;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Signer {
 
@@ -28,26 +27,39 @@ public class Signer {
     this.linker = linker;
   }
 
-  // MLSAG: SIGN
-  // http://eprint.iacr.org/2015/1098
-  public SignedMessage sign(byte[] message, KeyVector myKey, KeyMatrix members) {
+  /**
+   * MLSAG: SIGN
+   *
+   * @param message an arbitrary message
+   * @param myKey a column of private keys, of height {@code n}
+   * @param members an {@code n x m} matrix of public keys
+   *                (<em>excluding</em> the column of pubkeys
+   *                that corresponds to {@code myKey})
+   *
+   * @return a tuple {@code message, pubkeys, signature}
+   *
+   * @see <a href="http://eprint.iacr.org/2015/1098">
+   *   eprint.iacr.org/2015/1098 (Ring Confidential Transactions)
+   *   </a>
+   */
+  public SignedMessage sign(byte[] message, KeyColumn myKey, PointMatrix members) {
 
-    if (myKey.length() != members.height()) {
-      throw new IllegalArgumentException("Bad key size");
-    }
+    assert members.height() >= 1 : "need at least 1 row";
+    assert members.width() >= 1 : "need at least 1 column";
+    assert myKey.height() == members.height();
 
     SaltyMatrix saltyMembers = members.salt(random);
 
-    PointVector P = myKey.publicKeys();
-    NumberVector x = myKey.privateKeys();
-    PointVector I = hash.points(P).multiply(x);
+    PointColumn P = myKey.publicKeys();
+    NumberColumn x = myKey.privateKeys();
+    PointColumn I = hash.points(P).multiply(x);
 
-    NumberVector alpha = random.randomVector(members.height());
-    SaltyVector initPoint = SaltyVector.create(P, alpha);
+    NumberColumn alpha = random.randomVector(members.height());
+    SaltyColumn initPoint = SaltyColumn.create(P, alpha);
     Link init = linker.initLink(message, initPoint);
     List<Link> ring = createInitialRing(message, saltyMembers, I, init);
 
-    BigInteger finalC = ring.get(ring.size() - 1).c();
+    BigInteger finalC = ring.get(members.width() - 1).c();
     Link mergeLink = createMergeLink(message, myKey, I, alpha, finalC);
 
     assert mergeLink.c().equals(init.c());
@@ -58,32 +70,31 @@ public class Signer {
     // Spin the ring, so the signer's index isn't known.
     random.spin(ring);
 
-    BigInteger c = ring.get(members.width()).c();
-    return new SignedMessage(message, I, c,
-        ring.stream().map(Link::key).collect(Collectors.toList()));
+    finalC = ring.get(members.width()).c();
+    return SignedMessage.create(message, I, finalC, ring);
   }
 
   private Link createMergeLink(
       byte[] message,
-      KeyVector myKey,
-      PointVector I,
-      NumberVector alpha,
+      KeyColumn myKey,
+      PointColumn I,
+      NumberColumn alpha,
       BigInteger finalC) {
-    PointVector P = myKey.publicKeys();
-    NumberVector x = myKey.privateKeys();
-    NumberVector magicSalt = alpha.subtract(x.multiply(finalC)).mod(n);
-    SaltyVector mySalt = SaltyVector.create(P, magicSalt);
+    PointColumn P = myKey.publicKeys();
+    NumberColumn x = myKey.privateKeys();
+    NumberColumn magicSalt = alpha.subtract(x.multiply(finalC)).mod(n);
+    SaltyColumn mySalt = SaltyColumn.create(P, magicSalt);
     return linker.createLink(I, message, mySalt, finalC);
   }
 
   private List<Link> createInitialRing(
       byte[] message,
       SaltyMatrix saltyMembers,
-      PointVector I,
+      PointColumn I,
       Link init) {
     BigInteger c = init.c();
     List<Link> links = new ArrayList<>(saltyMembers.width() + 1);
-    for (SaltyVector column : saltyMembers.columns()) {
+    for (SaltyColumn column : saltyMembers.columns()) {
       Link link = linker.createLink(I, message, column, c);
       links.add(link);
       c = link.c();

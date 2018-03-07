@@ -4,8 +4,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import cn.ringct.KeyMatrix;
-import cn.ringct.KeyVector;
+import cn.ringct.PointMatrix;
+import cn.ringct.KeyColumn;
 import cn.ringct.Linker;
 import cn.ringct.Rand;
 import cn.ringct.SignedMessage;
@@ -73,10 +73,10 @@ class SenderTest {
     Transaction transaction = sender.send(dest);
     receiver.check(transaction)
         .map(List::of)
-        .map(KeyVector::new)
+        .map(KeyColumn::new)
         .ifPresentOrElse(key -> {
           String message = "test123";
-          SignedMessage signedMessage = signer.sign(message.getBytes(UTF_8), key, KeyMatrix.create(List.of(List.of(P0, P1))));
+          SignedMessage signedMessage = signer.sign(message.getBytes(UTF_8), key, PointMatrix.create(List.of(List.of(P0, P1))));
           assertTrue(verifier.verify(signedMessage));
         }, () -> fail("no money"));
   }

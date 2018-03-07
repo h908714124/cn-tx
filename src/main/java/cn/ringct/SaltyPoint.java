@@ -1,8 +1,7 @@
 package cn.ringct;
 
-import org.bouncycastle.math.ec.ECPoint;
-
 import java.math.BigInteger;
+import org.bouncycastle.math.ec.ECPoint;
 
 class SaltyPoint {
 

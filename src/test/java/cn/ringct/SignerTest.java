@@ -21,7 +21,7 @@ class SignerTest {
   private final BigInteger x =
       number("2de7089f15096ae7d45d6e85fe00669da2a91610097c932a757850f1e65102e");
 
-  private final KeyVector myKey = new KeyVector(List.of(new Key(CURVE.getG(), x)));
+  private final KeyColumn myKey = new KeyColumn(List.of(new Key(CURVE.getG(), x)));
 
   private final Hash hash = new Hash(
       new KeccakDigest(),
@@ -49,7 +49,7 @@ class SignerTest {
   @Test
   void signAndVerify() {
     String message = "test123";
-    SignedMessage signedMessage = signer.sign(message.getBytes(UTF_8), myKey, KeyMatrix.create(List.of(List.of(P0, P1))));
+    SignedMessage signedMessage = signer.sign(message.getBytes(UTF_8), myKey, PointMatrix.create(List.of(List.of(P0, P1))));
     assertTrue(verifier.verify(signedMessage));
   }
 

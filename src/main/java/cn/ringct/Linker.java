@@ -16,32 +16,32 @@ public class Linker {
   }
 
   Link createLink(
-      PointVector I,
+      PointColumn I,
       byte[] message,
-      SaltyVector saltyPoint,
+      SaltyColumn saltyPoint,
       BigInteger c) {
-    NumberVector s = saltyPoint.s();
-    PointVector P = saltyPoint.P();
-    PointVector L = s.multiply(G).add(P.multiply(c));
-    PointVector R = hash.points(P).multiply(s).add(I.multiply(c));
+    NumberColumn s = saltyPoint.s();
+    PointColumn P = saltyPoint.P();
+    PointColumn L = s.multiply(G).add(P.multiply(c));
+    PointColumn R = hash.points(P).multiply(s).add(I.multiply(c));
     return create(message, saltyPoint, L, R);
   }
 
   Link initLink(
       byte[] message,
-      SaltyVector alpha) {
-    NumberVector s = alpha.s();
-    PointVector P = alpha.P();
-    PointVector L = s.multiply(G);
-    PointVector R = hash.points(P).multiply(s);
+      SaltyColumn alpha) {
+    NumberColumn s = alpha.s();
+    PointColumn P = alpha.P();
+    PointColumn L = s.multiply(G);
+    PointColumn R = hash.points(P).multiply(s);
     return create(message, alpha, L, R);
   }
 
   private Link create(
       byte[] message,
-      SaltyVector saltyPoint,
-      PointVector L,
-      PointVector R) {
+      SaltyColumn saltyPoint,
+      PointColumn L,
+      PointColumn R) {
     BigInteger c = hash.scalar(message, L, R);
     return new Link(c, saltyPoint);
   }
@@ -50,19 +50,19 @@ public class Linker {
 
     private final BigInteger c;
 
-    private final SaltyVector saltyVector;
+    private final SaltyColumn saltyColumn;
 
-    Link(BigInteger c, SaltyVector saltyVector) {
+    Link(BigInteger c, SaltyColumn saltyColumn) {
       this.c = c;
-      this.saltyVector = saltyVector;
+      this.saltyColumn = saltyColumn;
     }
 
     BigInteger c() {
       return c;
     }
 
-    public SaltyVector key() {
-      return saltyVector;
+    public SaltyColumn key() {
+      return saltyColumn;
     }
 
     @Override

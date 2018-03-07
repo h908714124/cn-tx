@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.bouncycastle.math.ec.ECPoint;
 
-public final class PointVector {
+public final class PointColumn {
 
   private final List<ECPoint> points;
 
-  public PointVector(List<ECPoint> points) {
+  public PointColumn(List<ECPoint> points) {
     this.points = points;
   }
 
@@ -17,38 +17,34 @@ public final class PointVector {
     return points;
   }
 
-  public int length() {
+  public int height() {
     return points.size();
   }
 
-  public PointVector multiply(NumberVector x) {
-    if (x.length() != points.size()) {
-      throw new IllegalArgumentException();
-    }
+  public PointColumn multiply(NumberColumn x) {
+    assert x.height() == points.size();
     List<ECPoint> result = new ArrayList<>(points.size());
     for (int i = 0; i < points.size(); i++) {
       result.add(points.get(i).multiply(x.get(i)));
     }
-    return new PointVector(result);
+    return new PointColumn(result);
   }
 
-  public PointVector multiply(BigInteger x) {
+  public PointColumn multiply(BigInteger x) {
     List<ECPoint> result = new ArrayList<>(points.size());
     for (ECPoint point : points) {
       result.add(point.multiply(x));
     }
-    return new PointVector(result);
+    return new PointColumn(result);
   }
 
-  public PointVector add(PointVector x) {
-    if (x.length() != points.size()) {
-      throw new IllegalArgumentException();
-    }
+  public PointColumn add(PointColumn x) {
+    assert x.height() == points.size();
     List<ECPoint> result = new ArrayList<>(points.size());
     for (int i = 0; i < points.size(); i++) {
       result.add(points.get(i).add(x.get(i)));
     }
-    return new PointVector(result);
+    return new PointColumn(result);
   }
 
   public ECPoint get(int i) {

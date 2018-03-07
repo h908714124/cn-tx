@@ -1,30 +1,44 @@
 package cn.ringct;
 
+import cn.ringct.Linker.Link;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SignedMessage {
 
   private final byte[] message;
 
-  private final PointVector I;
+  private final PointColumn I;
 
   private final BigInteger c;
 
-  private final List<SaltyVector> ring;
+  private final SaltyMatrix matrix;
 
-  SignedMessage(
+  private SignedMessage(
       byte[] message,
-      PointVector I,
+      PointColumn I,
       BigInteger c,
-      List<SaltyVector> ring) {
+      SaltyMatrix matrix) {
     this.message = message;
     this.I = I;
     this.c = c;
-    this.ring = ring;
+    this.matrix = matrix;
   }
 
-  public PointVector keyImage() {
+  static SignedMessage create(
+      byte[] message,
+      PointColumn I,
+      BigInteger c,
+      List<Link> ring) {
+    List<SaltyColumn> columns = ring.stream()
+        .map(Link::key)
+        .collect(Collectors.toList());
+    return new SignedMessage(message, I, c,
+        new SaltyMatrix(columns));
+  }
+
+  public PointColumn keyImage() {
     return I;
   }
 
@@ -32,8 +46,8 @@ public class SignedMessage {
     return c;
   }
 
-  public List<SaltyVector> ring() {
-    return ring;
+  public SaltyMatrix ring() {
+    return matrix;
   }
 
   public byte[] message() {
