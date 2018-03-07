@@ -36,7 +36,7 @@ public class Signer {
       throw new IllegalArgumentException("Bad key size");
     }
 
-    SaltyMatrix saltyPoints = members.salt(random);
+    SaltyMatrix saltyMembers = members.salt(random);
 
     PointVector P = myKey.publicKeys();
     NumberVector x = myKey.privateKeys();
@@ -45,7 +45,7 @@ public class Signer {
     NumberVector alpha = random.randomVector(members.height());
     SaltyVector initPoint = SaltyVector.create(P, alpha);
     Link init = linker.initLink(message, initPoint);
-    List<Link> ring = createInitialRing(message, saltyPoints, I, init);
+    List<Link> ring = createInitialRing(message, saltyMembers, I, init);
 
     BigInteger finalC = ring.get(ring.size() - 1).c();
     Link mergeLink = createMergeLink(message, myKey, I, alpha, finalC);
@@ -78,15 +78,15 @@ public class Signer {
 
   private List<Link> createInitialRing(
       byte[] message,
-      SaltyMatrix saltyVectors,
+      SaltyMatrix saltyMembers,
       PointVector I,
       Link init) {
-    Link prev = init;
-    ArrayList<Link> links = new ArrayList<>(saltyVectors.width() + 1);
-    for (SaltyVector column : saltyVectors.columns()) {
-      Link link = linker.createLink(I, message, column, prev.c());
+    BigInteger c = init.c();
+    List<Link> links = new ArrayList<>(saltyMembers.width() + 1);
+    for (SaltyVector column : saltyMembers.columns()) {
+      Link link = linker.createLink(I, message, column, c);
       links.add(link);
-      prev = link;
+      c = link.c();
     }
     return links;
   }
